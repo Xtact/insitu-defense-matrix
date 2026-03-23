@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InSitu Labs - Threat Verification</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            height: 100vh;
+            width: 100vw;
+        }
+        .panel { border: 1px solid #333; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; }
+        .alert { color: #f00; font-weight: bold; animation: blink 1s infinite; font-size: 1.2em; margin-bottom: 15px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .video-container {
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #0f0;
+            position: relative;
+            background: #000;
+        }
+        video { width: 95%; max-height: 80%; border: 2px solid #333; box-shadow: 0 0 20px rgba(0,255,0,0.2); object-fit: contain; }
+        .overlay-text { position: absolute; bottom: 5%; left: 5%; color: #0f0; background: rgba(0,0,0,0.8); padding: 5px; font-weight: bold; }
+        .code-scroll { font-size: 0.8em; line-height: 1.5; color: #0ff; overflow-y: hidden; flex-grow: 1; margin-top: 10px; }
+        h1, h3 { margin-top: 0; color: #fff; text-transform: uppercase; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .status-line { margin: 10px 0; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <div class="panel">
+        <h3>Threat Intel</h3>
+        <div class="alert">[!] FLYTRAP EXPLOIT DETECTED</div>
+        <div class="status-line">> RGB Neural Net: COMPROMISED</div>
+        <div class="status-line">> Target Vector: Distance-Pulling Attack</div>
+        <div class="status-line">> Confidence: DROPPING</div>
+        <br>
+        <h3 style="color:#0f0;">Countermeasure</h3>
+        <div class="status-line">> Phase Proxy: ENGAGED</div>
+        <div class="status-line">> Noise Gate: 17x17 Spatial Blur</div>
+        <div class="status-line">> Decoy Reclassified: INANIMATE</div>
+    </div>
+
+    <div class="panel video-container">
+        <h1 style="position: absolute; top: 20px; letter-spacing: 5px; text-align: center; width: 100%;">INSITU DEFENSE MATRIX</h1>
+        <video src="insitu_poc.mp4" autoplay loop muted playsinline></video>
+        <div class="overlay-text">> LIVE FORENSIC X-RAY FEED</div>
+    </div>
+
+    <div class="panel">
+        <h3>ROS SDK Node Logging</h3>
+        <div class="code-scroll" id="console"></div>
+    </div>
+
+    <script>
+        const codeLines = [
+            "// INITIATING INSITU LABS SDK",
+            "// ROS NODE: /vision/insitu_optical_immune_sys",
+            "#include <ros/ros.h>",
+            "#include <insitu_defense_matrix.h>",
+            "void targetFeedCallback(const ImageConstPtr& feed) {",
+            "  ROS_WARN(\"RGB ATT CONFIDENCE DROPPING.\");",
+            "  cv::Mat threat = cv_bridge::toCvShare(feed)->image;",
+            "  cv::GaussianBlur(threat, threat, cv::Size(17,17), 0);",
+            "  InSitu::StructuralGradient xray = InSitu::ComputePhaseEdge(threat);",
+            "  if (xray.detectSyntheticAnomaly()) {",
+            "    ROS_FATAL(\"ADVERSARIAL PRINT DETECTED.\");",
+            "    drone_control::abortTracking();",
+            "  }",
+            "}",
+            "> SYSTEM HEALTH: OPTIMAL",
+            "> LATENCY: 1.2ms",
+            "--------------------------------"
+        ];
+        
+        const consoleDiv = document.getElementById('console');
+        let lineIndex = 0;
+
+        setInterval(() => {
+            consoleDiv.innerHTML += codeLines[lineIndex] + '<br>';
+            lineIndex++;
+            if(lineIndex >= codeLines.length) lineIndex = 0;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }, 800);
+    </script>
+</body>
+</html>
