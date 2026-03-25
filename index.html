@@ -6,48 +6,98 @@
     <title>InSitu Defense Matrix - POC</title>
     <style>
         body {
-            background-color: #0a0a0a;
-            color: #ffffff;
+            background-color: #000000;
+            color: #00ffcc;
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
         h1 {
             color: #ff3333;
             letter-spacing: 2px;
             text-transform: uppercase;
+            margin: 15px 0;
+            font-size: 1.5rem;
+            z-index: 30;
         }
 
         .dashboard-container {
             position: relative;
             width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
+            max-width: 1400px;
+            height: 85vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0a0a0a;
+            border: 1px solid #333;
+            overflow: hidden;
         }
 
         #mainVideo {
             width: 100%;
-            max-height: 85vh; /* Prevents the video from overflowing the screen */
+            height: 100%;
             object-fit: contain; /* Stops the zooming and cropping */
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            pointer-events: none; /* Prevents user from clicking/pausing it */
         }
 
+        /* Restored Technical Text - Left */
+        .hud-left {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px black;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Restored Technical Text - Right */
+        .hud-right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            font-size: 14px;
+            text-align: right;
+            text-shadow: 1px 1px 2px black;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hud-item {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px 10px;
+            border-left: 3px solid #00ffcc;
+        }
+
+        .hud-right .hud-item {
+            border-left: none;
+            border-right: 3px solid #00ffcc;
+        }
+
+        /* UPGRADED X-RAY PIP */
         #pipContainer {
             display: none;
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 30%;
-            max-width: 400px;
+            bottom: 60px; /* Moved significantly up */
+            right: 40px; /* Moved slightly inward */
+            width: 45%; /* Dramatically increased size */
+            max-width: 600px; /* Allows it to get much larger */
             border: 3px solid #00ffcc;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
-            overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.6);
+            background: #000;
             z-index: 10;
         }
 
@@ -59,74 +109,4 @@
         #alarmOverlay {
             display: none;
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            font-size: 24px;
-            font-weight: bold;
-            border-radius: 5px;
-            border: 2px solid red;
-            z-index: 20;
-            animation: flash 1s infinite alternate;
-        }
-
-        @keyframes flash {
-            0% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-    </style>
-</head>
-<body>
-
-    <h1>InSitu Threat Intercept Dashboard</h1>
-
-    <div class="dashboard-container">
-        <video id="mainVideo" src="insitu_poc.mp4" controls autoplay muted playsinline></video>
-
-        <div id="alarmOverlay">WARNING: ANOMALY DETECTED</div>
-
-        <div id="pipContainer">
-            <video id="xrayVideo" src="true_xray.mp4" muted playsinline></video>
-        </div>
-    </div>
-
-    <script>
-        const mainVideo = document.getElementById('mainVideo');
-        const xrayVideo = document.getElementById('xrayVideo');
-        const pipContainer = document.getElementById('pipContainer');
-        const alarmOverlay = document.getElementById('alarmOverlay');
-        
-        let interceptTriggered = false;
-
-        mainVideo.addEventListener("timeupdate", function() {
-            // Trigger exactly at 1.5 seconds when the umbrella opens
-            if (mainVideo.currentTime >= 1.5 && !interceptTriggered) { 
-                interceptTriggered = true;
-                
-                // Sync the X-Ray video perfectly to the main video
-                xrayVideo.currentTime = mainVideo.currentTime;
-                
-                // Snap open the PIP and start playing
-                pipContainer.style.display = "block";
-                xrayVideo.play();
-                
-                // Flash the alarms
-                alarmOverlay.style.display = "block";
-            }
-        });
-        
-        // Sync pause behavior
-        mainVideo.addEventListener("pause", function() {
-            if (interceptTriggered) xrayVideo.pause();
-        });
-
-        // Sync play behavior
-        mainVideo.addEventListener("play", function() {
-            if (interceptTriggered) xrayVideo.play();
-        });
-    </script>
-</body>
-</html>
+            top: 20
