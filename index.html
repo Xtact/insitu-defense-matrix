@@ -64,7 +64,6 @@
             position: absolute; top: 20px; left: 180px; width: 300px; height: 300px;
             font-size: 10px; color: rgba(0, 255, 204, 0.6); overflow: hidden; pointer-events: none; z-index: 5;
             display: flex; flex-direction: column; justify-content: flex-end;
-            /* Hide on very small screens to save space */
             @media (max-width: 768px) { display: none; }
         }
 
@@ -193,50 +192,4 @@
                 document.getElementById('tgtContainer').style.color = "#00ffcc";
                 document.getElementById('txt-sys').innerText = "O.T.I.S.: ONLINE";
                 document.getElementById('sysContainer').style.color = "#00ffcc";
-                document.getElementById('camStatus').style.color = "#00ffcc";
-                document.getElementById('insituStatus').style.color = "#aaaaaa"; 
-
-                var leds = document.querySelectorAll('.status-led');
-                for(var i=0; i<leds.length; i++) leds[i].classList.remove('led-red');
-                document.getElementById('targetingReticle').style.borderColor = "rgba(0, 255, 204, 0.3)";
-            }
-
-            if (mainVideo.currentTime >= 0.3 && !step1 && !interceptTriggered) {
-                step1 = true;
-                document.getElementById('led-sys').classList.add('led-red');
-                document.getElementById('txt-sys').innerText = "SYS: OVERLOAD";
-                document.getElementById('sysContainer').style.color = "#ff3333";
-            }
-
-            if (mainVideo.currentTime >= 0.7 && !step2 && !interceptTriggered) {
-                step2 = true;
-                document.getElementById('led-tgt').classList.add('led-red');
-                document.getElementById('txt-tgt').innerText = "TGT: DEVIATING";
-                document.getElementById('tgtContainer').style.color = "#ff3333";
-            }
-
-            if (mainVideo.currentTime >= 1.1 && !step3 && !interceptTriggered) {
-                step3 = true;
-                document.getElementById('led-insitu').classList.add('led-red');
-                document.getElementById('insituStatus').style.color = "#ff3333";
-            }
-
-            // The Intercept
-            if (mainVideo.currentTime >= 1.5 && !interceptTriggered) { 
-                interceptTriggered = true;
-                xrayVideo.currentTime = mainVideo.currentTime;
-                var xPlay = xrayVideo.play();
-                if (xPlay !== undefined) xPlay.catch(function(e){});
-                
-                pip.style.visibility = "visible"; pip.style.opacity = "1"; pip.classList.add('pip-alert-active');
-                
-                document.getElementById('led-cam').classList.add('led-red');
-                document.getElementById('camStatus').style.color = "#ff3333";
-                document.getElementById('txt-tgt').innerText = "TGT: LOCK / X-RAY";
-                document.getElementById('alarmOverlay').style.display = "block";
-                document.getElementById('targetingReticle').style.borderColor = "rgba(255, 51, 51, 0.8)";
-            }
-        });
-    </script>
-</body>
-</html>
+                document.getElementById('camStatus').style.color = "#00ffcc
