@@ -80,13 +80,13 @@
         .reticle::before { top: 50%; left: -20px; right: -20px; height: 1px; }
         .reticle::after { left: 50%; top: -20px; bottom: -20px; width: 1px; }
 
-        /* Start Button */
+        /* Start Button - FORCED TO TOP LAYER */
         #startOverlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95);
             display: flex; justify-content: center; align-items: center;
-            z-index: 50;
+            z-index: 999;
         }
 
         #startBtn {
@@ -96,6 +96,8 @@
             border: 2px solid #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
             cursor: pointer; text-transform: uppercase; transition: all 0.3s ease;
             letter-spacing: 1px;
+            z-index: 1000;
+            pointer-events: auto;
         }
         #startBtn:hover { background: #00ffcc; color: #000; }
 
@@ -128,7 +130,6 @@
         }
         .hud-right .hud-item { border-left: none; border-right: 3px solid #00ffcc; }
 
-        /* Custom InSitu Labs Promo */
         .insitu-tag {
             border-right: 3px solid #555 !important;
             color: #aaaaaa;
@@ -178,29 +179,4 @@
         <div id="codeStream"></div>
 
         <div class="hud-left">
-            <div class="hud-item" id="sysStatus">O.T.I.S.: STANDBY</div>
-            <div class="hud-item" id="altReadout">ALT: 40.23 FT</div>
-            <div class="hud-item" id="hdgReadout">HDG: 274.1° W</div>
-            <div class="hud-item">SPD: 0.0 MPH</div>
-            <div class="hud-item" id="tgtStatus">TGT: TRACKING...</div>
-        </div>
-
-        <video id="mainVideo" src="insitu_poc.mp4?v=4" muted playsinline></video>
-
-        <div id="alarmOverlay">STRUCTURAL ANOMALY DETECTED</div>
-
-        <div class="hud-right">
-            <div class="hud-item">BAT: 84.2%</div>
-            <div class="hud-item">LINK: ENCRYPTED</div>
-            <div class="hud-item">CAM: EO/IR MULTIPLEX</div>
-            <div class="hud-item" id="memReadout">MEM: 0x00000000</div>
-            <div class="hud-item insitu-tag">CORE: INSITU LABS</div>
-        </div>
-
-        <div id="pipContainer">
-            <video id="xrayVideo" src="true_xray.mp4?v=4" muted playsinline></video>
-        </div>
-    </div>
-
-    <script>
-        const mainVideo = document.getElementById('main
+            <div class="hud-item" id="sysStatus">O.T
