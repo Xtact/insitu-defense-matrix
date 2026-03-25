@@ -14,6 +14,28 @@
             height: 100vh; overflow: hidden;
         }
 
+        /* FULL SCREEN BOOT OVERLAY - GUARANTEES VISIBILITY */
+        #bootScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 99999;
+        }
+
+        #bootText {
+            color: #00ffcc; font-size: 22px; letter-spacing: 3px;
+            animation: pulseText 1s infinite alternate;
+        }
+
+        #startBtn {
+            display: none; /* Hidden until JS proves it is alive */
+            padding: 20px 40px; font-size: 22px; font-family: 'Courier New', Courier, monospace; font-weight: bold;
+            color: #00ffcc; background: rgba(0, 255, 204, 0.1); border: 2px solid #00ffcc; 
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); cursor: pointer; text-transform: uppercase;
+            transition: all 0.2s ease; letter-spacing: 2px;
+        }
+        #startBtn:hover { background: #00ffcc; color: #000; }
+
         h1 {
             color: #ff3333; letter-spacing: 2px; text-transform: uppercase;
             margin: 15px 0 5px 0; font-size: 1.6rem; z-index: 30;
@@ -47,26 +69,7 @@
         .reticle::before { top: 50%; left: -20px; right: -20px; height: 1px; }
         .reticle::after { left: 50%; top: -20px; bottom: -20px; width: 1px; }
 
-        /* Start Button Background */
-        #startOverlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
-        }
-
-        /* Start Button */
-        #startBtn {
-            padding: 15px 30px; font-size: 20px; font-family: 'Courier New', Courier, monospace; font-weight: bold;
-            color: #00ffcc; background: rgba(0, 255, 204, 0.1); border: 2px solid #00ffcc; 
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4); cursor: pointer; text-transform: uppercase;
-            transition: all 0.2s ease; z-index: 10000; pointer-events: auto;
-        }
-        #startBtn:hover { background: #00ffcc; color: #000; }
-
-        #mainVideo {
-            width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 1;
-        }
+        #mainVideo { width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 1; }
 
         #codeStream {
             position: absolute; top: 20px; left: 220px; width: 350px; height: 400px;
@@ -76,3 +79,119 @@
 
         .hud-left, .hud-right {
             position: absolute; top: 20px; display: flex; flex-direction: column; gap: 12px;
+            font-size: 13px; text-shadow: 1px 1px 2px black; pointer-events: none; z-index: 5;
+        }
+        .hud-left { left: 20px; }
+        .hud-right { right: 20px; text-align: right; }
+
+        .hud-item {
+            background: rgba(0, 0, 0, 0.7); padding: 6px 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 8px;
+            transition: color 0.3s ease;
+        }
+        
+        .status-led {
+            width: 8px; height: 8px; border-radius: 50%;
+            background-color: #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+
+        .led-red {
+            background-color: #ff3333 !important;
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.9) !important;
+            animation: pulseGlowRed 0.5s infinite alternate !important; 
+        }
+
+        .hud-right .hud-item { flex-direction: row-reverse; }
+        .insitu-tag { color: #aaaaaa; font-size: 11px; margin-top: 10px; }
+
+        #pipContainer {
+            visibility: hidden; opacity: 0; 
+            position: absolute; bottom: 60px; right: 40px; width: 45%; max-width: 600px;
+            border: 3px solid #ff3333; box-shadow: 0 0 30px rgba(255, 51, 51, 0.4); background: #000; z-index: 10;
+        }
+
+        .pip-alert-active { animation: alertFlash 0.4s infinite alternate !important; }
+
+        #pipContainer::before {
+            content: 'O.T.I.S. ISOLATION OVERRIDE'; position: absolute; top: -25px; left: 0; color: #ff3333; 
+            font-size: 12px; font-weight: bold; letter-spacing: 1px;
+        }
+        #xrayVideo { width: 100%; display: block; }
+
+        #alarmOverlay {
+            display: none; position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+            background-color: rgba(200, 0, 0, 1); color: white; padding: 10px 40px; font-size: 24px; 
+            font-weight: bold; letter-spacing: 3px; border: 3px solid #ffffff; 
+            text-shadow: 2px 2px 0 #ff0000, -1px -1px 0 #000, 0 0 10px #ffffff;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 1); z-index: 20; 
+            animation: flashOverlay 0.8s infinite alternate; 
+        }
+        
+        @keyframes pulseText { 0% { opacity: 1; } 100% { opacity: 0.3; } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(0, 255, 204, 0.5); } 100% { box-shadow: 0 0 15px rgba(0, 255, 204, 1); } }
+        @keyframes pulseGlowRed { 0% { box-shadow: 0 0 5px rgba(255, 51, 51, 0.6); } 100% { box-shadow: 0 0 20px rgba(255, 51, 51, 1); } }
+        @keyframes alertFlash { 0% { border-color: #ff3333; box-shadow: 0 0 30px rgba(255, 51, 51, 0.5); } 100% { border-color: #39FF14; box-shadow: 0 0 40px rgba(57, 255, 20, 0.7); } }
+        @keyframes flashOverlay { 0% { opacity: 1; } 100% { opacity: 0.6; } }
+    </style>
+</head>
+<body>
+
+    <div id="bootScreen">
+        <h2 id="bootText">ESTABLISHING SECURE CONNECTION...</h2>
+        <button id="startBtn">INITIALIZE O.T.I.S. UPLINK</button>
+    </div>
+
+    <h1>O.T.I.S. // Optical Threat Isolation System</h1>
+    <div class="tagline">- YOUR EYES IN THE SKY -</div>
+
+    <div class="dashboard-container">
+        <div class="grid-overlay"></div>
+        <div class="reticle" id="targetingReticle"></div>
+        <div id="codeStream"></div>
+
+        <div class="hud-left">
+            <div class="hud-item" id="sysContainer">
+                <span class="status-led" id="led-sys"></span>
+                <span id="txt-sys">SYS: STANDBY</span>
+            </div>
+            <div class="hud-item">
+                <span class="status-led"></span>
+                <span id="altReadout">ALT: 40.23 FT</span>
+            </div>
+            <div class="hud-item">
+                <span class="status-led"></span>
+                <span id="hdgReadout">HDG: 274.1° W</span>
+            </div>
+            <div class="hud-item">
+                <span class="status-led"></span>
+                <span id="spdReadout">SPD: 0.0 MPH</span>
+            </div>
+            <div class="hud-item" id="tgtContainer">
+                <span class="status-led" id="led-tgt"></span>
+                <span id="txt-tgt">TGT: ACQUIRING...</span>
+            </div>
+        </div>
+
+        <video id="mainVideo" src="insitu_poc.mp4" preload="metadata" muted playsinline></video>
+
+        <div id="alarmOverlay">STRUCTURAL ANOMALY DETECTED</div>
+
+        <div class="hud-right">
+            <div class="hud-item">
+                <span class="status-led"></span>
+                <span>BAT: 84.2%</span>
+            </div>
+            <div class="hud-item">
+                <span class="status-led"></span>
+                <span>LINK: ENCRYPTED</span>
+            </div>
+            <div class="hud-item" id="camContainer">
+                <span class="status-led" id="led-cam"></span>
+                <span id="camStatus">CAM: EO/IR MULTIPLEX</span>
+            </div>
+            <div class="hud-item">
+                <span class="status-led"></span>
+                <span
