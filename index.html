@@ -105,12 +105,18 @@
         .hud-right .hud-item { border-left: none; border-right: 3px solid #00ffcc; }
         .insitu-tag { border-right: 3px solid #555 !important; color: #aaaaaa; font-size: 11px; margin-top: 10px; }
 
-        /* THE FIX: Changed from display: none to opacity: 0 to force background rendering */
         #pipContainer {
             visibility: hidden; opacity: 0; 
             position: absolute; bottom: 60px; right: 40px; width: 45%; max-width: 600px;
             border: 3px solid #ff3333; box-shadow: 0 0 30px rgba(255, 51, 51, 0.4); background: #000; z-index: 10;
+            /* Default state before trigger */
         }
+
+        /* NEW CLASS: Triggers high-speed Red to Neon Green border flash */
+        .pip-alert-active {
+            animation: alertFlash 0.4s infinite alternate !important;
+        }
+
         #pipContainer::before {
             content: 'O.T.I.S. ISOLATION OVERRIDE'; position: absolute; top: -25px; left: 0; color: #ff3333; 
             font-size: 12px; font-weight: bold; letter-spacing: 1px;
@@ -121,9 +127,23 @@
             display: none; position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
             background-color: rgba(255, 0, 0, 0.85); color: white; padding: 10px 40px; font-size: 24px; 
             font-weight: bold; letter-spacing: 3px; border: 2px solid #ff0000; box-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
-            z-index: 20; animation: flash 0.6s infinite alternate;
+            z-index: 20; animation: flashOverlay 0.6s infinite alternate;
         }
-        @keyframes flash { 0% { opacity: 1; } 100% { opacity: 0.1; } }
+        
+        /* Keyframes for the PIP border and glow (Red to Neon Green) */
+        @keyframes alertFlash {
+            0% { 
+                border-color: #ff3333; 
+                box-shadow: 0 0 30px rgba(255, 51, 51, 0.5); 
+            }
+            100% { 
+                border-color: #39FF14; /* Neon Green */
+                box-shadow: 0 0 40px rgba(57, 255, 20, 0.7); 
+            }
+        }
+
+        /* Renamed animation to avoid conflict with PIP alert */
+        @keyframes flashOverlay { 0% { opacity: 1; } 100% { opacity: 0.1; } }
     </style>
 </head>
 <body>
@@ -149,7 +169,7 @@
             <div class="hud-item" id="tgtStatus">TGT: TRACKING...</div>
         </div>
 
-        <video id="mainVideo" src="insitu_poc.mp4?v=7" preload="auto" muted playsinline></video>
+        <video id="mainVideo" src="insitu_poc.mp4?v=8" preload="auto" muted playsinline></video>
 
         <div id="alarmOverlay">STRUCTURAL ANOMALY DETECTED</div>
 
@@ -162,7 +182,7 @@
         </div>
 
         <div id="pipContainer">
-            <video id="xrayVideo" src="true_xray.mp4?v=7" preload="auto" muted playsinline></video>
+            <video id="xrayVideo" src="true_xray.mp4?v=8" preload="auto" muted playsinline></video>
         </div>
     </div>
 
@@ -213,7 +233,6 @@
                 overlay.style.display = 'none';
                 document.getElementById('sysStatus').innerText = "O.T.I.S.: ONLINE";
 
-                // Warm up the X-Ray video in the background before it's needed
                 xrayVideo.load();
 
                 const playPromise = video.play();
@@ -237,15 +256,18 @@
 
         const mainVideo = document.getElementById('mainVideo');
         const xrayVideo = document.getElementById('xrayVideo');
+        const pipContainer = document.getElementById('pipContainer');
         
         mainVideo.addEventListener("timeupdate", function() {
+            // LOOP RESET
             if (mainVideo.currentTime >= mainVideo.duration - 0.5) {
                 mainVideo.currentTime = 0;
                 interceptTriggered = false;
                 
-                // Hide using opacity instead of display:none
-                document.getElementById('pipContainer').style.visibility = "hidden";
-                document.getElementById('pipContainer').style.opacity = "0";
+                // Hide and disable flashing class
+                pipContainer.style.visibility = "hidden";
+                pipContainer.style.opacity = "0";
+                pipContainer.classList.remove('pip-alert-active');
                 
                 document.getElementById('alarmOverlay').style.display = "none";
                 xrayVideo.pause();
@@ -258,13 +280,15 @@
                 document.getElementById('codeStream').style.color = "rgba(0, 255, 204, 0.6)";
             }
 
+            // TRIGGER @ 1.5s
             if (mainVideo.currentTime >= 1.5 && !interceptTriggered) { 
                 interceptTriggered = true;
                 xrayVideo.currentTime = mainVideo.currentTime;
                 
-                // Show by snapping opacity to 100%
-                document.getElementById('pipContainer').style.visibility = "visible";
-                document.getElementById('pipContainer').style.opacity = "1";
+                // Show and activate NEW flashing class
+                pipContainer.style.visibility = "visible";
+                pipContainer.style.opacity = "1";
+                pipContainer.classList.add('pip-alert-active');
                 
                 xrayVideo.play().catch(e => console.log(e));
                 
