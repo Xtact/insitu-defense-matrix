@@ -17,13 +17,8 @@
             justify-content: center; align-items: center; z-index: 99999;
         }
 
-        #bootText {
-            color: #00ffcc; font-size: 20px; letter-spacing: 2px; text-align: center; padding: 20px;
-            animation: pulseText 1s infinite alternate;
-        }
-
         #startBtn {
-            display: none; padding: 20px 40px; font-size: 22px; font-family: 'Courier New', Courier, monospace; 
+            padding: 20px 40px; font-size: 22px; font-family: 'Courier New', Courier, monospace; 
             font-weight: bold; color: #00ffcc; background: rgba(0, 255, 204, 0.1); border: 2px solid #00ffcc; 
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); cursor: pointer; text-transform: uppercase;
         }
@@ -103,21 +98,13 @@
             background-color: rgba(200, 0, 0, 1); color: white; padding: 8px 20px; font-size: 16px; 
             font-weight: bold; text-align: center; border: 2px solid #ffffff; z-index: 20; width: 80%;
         }
-
-        @keyframes pulseText { 0% { opacity: 1; } 100% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
     <div id="bootScreen">
-        <h2 id="bootText">ESTABLISHING SECURE CONNECTION...</h2>
-        <button id="startBtn">INITIALIZE O.T.I.S. UPLINK</button>
+        <button id="startBtn" onclick="igniteSystem(this)">INITIALIZE O.T.I.S. UPLINK</button>
     </div>
-
-    <script>
-        document.getElementById('bootText').style.display = 'none';
-        document.getElementById('startBtn').style.display = 'block';
-    </script>
 
     <h1>O.T.I.S. // Optical Threat Isolation System</h1>
     <div class="tagline">- YOUR EYES IN THE SKY -</div>
@@ -134,7 +121,7 @@
             <div class="hud-item" id="tgtContainer"><span class="status-led" id="led-tgt"></span><span id="txt-tgt">TGT: ACQUIRING...</span></div>
         </div>
 
-        <video id="mainVideo" src="insitu_poc.mp4" playsinline webkit-playsinline muted></video>
+        <video id="mainVideo" playsinline webkit-playsinline muted preload="none"></video>
 
         <div id="alarmOverlay">STRUCTURAL ANOMALY DETECTED</div>
 
@@ -146,50 +133,103 @@
         </div>
 
         <div id="pipContainer">
-            <video id="xrayVideo" src="true_xray.mp4" playsinline webkit-playsinline muted></video>
+            <video id="xrayVideo" playsinline webkit-playsinline muted preload="none"></video>
         </div>
     </div>
 
     <script>
-        var startBtn = document.getElementById('startBtn');
-        var bootScreen = document.getElementById('bootScreen');
-        var mainVideo = document.getElementById('mainVideo');
-        var xrayVideo = document.getElementById('xrayVideo');
-        
-        var interceptTriggered = false;
-        var step1 = false, step2 = false, step3 = false; 
+        var cvCode = [
+            "cv::Mat frame; cap >> frame;",
+            "cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);",
+            "cv::Canny(blur, edges, 40, 120);",
+            "tensor_data = otis_model.forward();",
+            "kalman_filter.predict();"
+        ];
 
-        // Ignition Sequence
-        startBtn.addEventListener('click', function() {
-            bootScreen.style.display = 'none';
-            document.getElementById('txt-sys').innerText = "O.T.I.S.: ONLINE";
-
-            var playPromise = mainVideo.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(function(error) {
-                    bootScreen.style.display = 'flex';
-                    startBtn.innerText = "TAP TO FORCE PLAY (iOS)";
-                    startBtn.style.color = "#ff3333";
-                    startBtn.style.borderColor = "#ff3333";
-                });
+        function pushCodeLine(isThreat) {
+            var stream = document.getElementById('codeStream');
+            if (!stream) return;
+            var line = document.createElement('div');
+            if (isThreat) {
+                line.innerText = "EXCEPTION: void *anomaly(0xFF) -- DEPLOY X-RAY";
+                line.style.color = "#ff3333"; line.style.fontWeight = "bold";
+            } else {
+                var randomLine = cvCode[Math.floor(Math.random() * cvCode.length)];
+                var hex = "0x" + Math.random().toString(16).substring(2, 8).toUpperCase();
+                line.innerText = "[" + hex + "] " + randomLine;
             }
-        });
+            stream.appendChild(line);
+            if (stream.childNodes.length > 20) stream.removeChild(stream.firstChild);
+        }
 
-        // Time Engine
-        mainVideo.addEventListener("timeupdate", function() {
-            var pip = document.getElementById('pipContainer');
-            
-            // Loop Reset
-            if (mainVideo.currentTime >= mainVideo.duration - 0.5) {
-                mainVideo.currentTime = 0;
-                interceptTriggered = false; step1 = false; step2 = false; step3 = false;
+        // The master sequence - triggered ONLY on physical tap
+        function igniteSystem(btn) {
+            try {
+                var bootScreen = document.getElementById('bootScreen');
+                var mainVideo = document.getElementById('mainVideo');
+                var xrayVideo = document.getElementById('xrayVideo');
+
+                btn.innerText = "UPLINKING...";
+
+                // Inject the video files dynamically at the moment of the click
+                mainVideo.src = "insitu_poc.mp4";
+                xrayVideo.src = "true_xray.mp4";
+
+                // Force play
+                var playPromise = mainVideo.play();
                 
-                pip.style.visibility = "hidden"; pip.style.opacity = "0"; pip.classList.remove('pip-alert-active');
-                document.getElementById('alarmOverlay').style.display = "none";
-                xrayVideo.pause(); xrayVideo.currentTime = 0;
-                
-                document.getElementById('txt-tgt').innerText = "TGT: ACQUIRING...";
-                document.getElementById('tgtContainer').style.color = "#00ffcc";
-                document.getElementById('txt-sys').innerText = "O.T.I.S.: ONLINE";
-                document.getElementById('sysContainer').style.color = "#00ffcc";
-                document.getElementById('camStatus').style.color = "#00ffcc
+                if (playPromise !== undefined) {
+                    playPromise.then(function() {
+                        // Success! Hide boot screen and start HUD
+                        bootScreen.style.display = 'none';
+                        document.getElementById('txt-sys').innerText = "O.T.I.S.: ONLINE";
+                        setInterval(function() { pushCodeLine(false); }, 150);
+                    }).catch(function(error) {
+                        // iOS blocked it. Print error directly to button.
+                        btn.innerText = "IOS BLOCKED: " + error.message;
+                        btn.style.borderColor = "red"; btn.style.color = "red";
+                    });
+                }
+
+                // Time Engine attached AFTER successful boot
+                var interceptTriggered = false;
+                var step1 = false, step2 = false, step3 = false; 
+
+                mainVideo.addEventListener("timeupdate", function() {
+                    var pip = document.getElementById('pipContainer');
+                    
+                    if (mainVideo.currentTime >= mainVideo.duration - 0.5) {
+                        mainVideo.currentTime = 0;
+                        interceptTriggered = false; step1 = false; step2 = false; step3 = false;
+                        
+                        pip.style.visibility = "hidden"; pip.style.opacity = "0"; pip.classList.remove('pip-alert-active');
+                        document.getElementById('alarmOverlay').style.display = "none";
+                        xrayVideo.pause(); xrayVideo.currentTime = 0;
+                        
+                        document.getElementById('txt-tgt').innerText = "TGT: ACQUIRING...";
+                        document.getElementById('tgtContainer').style.color = "#00ffcc";
+                        document.getElementById('txt-sys').innerText = "O.T.I.S.: ONLINE";
+                        document.getElementById('sysContainer').style.color = "#00ffcc";
+                        document.getElementById('camStatus').style.color = "#00ffcc";
+                        document.getElementById('insituStatus').style.color = "#aaaaaa"; 
+
+                        var leds = document.querySelectorAll('.status-led');
+                        for(var i=0; i<leds.length; i++) leds[i].classList.remove('led-red');
+                        document.getElementById('targetingReticle').style.borderColor = "rgba(0, 255, 204, 0.3)";
+                    }
+
+                    if (mainVideo.currentTime >= 2.0 && !step1 && !interceptTriggered) {
+                        step1 = true;
+                        document.getElementById('led-sys').classList.add('led-red');
+                        document.getElementById('txt-sys').innerText = "SYS: OVERLOAD";
+                        document.getElementById('sysContainer').style.color = "#ff3333";
+                    }
+
+                    if (mainVideo.currentTime >= 2.5 && !step2 && !interceptTriggered) {
+                        step2 = true;
+                        document.getElementById('led-tgt').classList.add('led-red');
+                        document.getElementById('txt-tgt').innerText = "TGT: DEVIATING";
+                        document.getElementById('tgtContainer').style.color = "#ff3333";
+                    }
+
+                    if (
