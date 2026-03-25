@@ -66,7 +66,6 @@
         .reticle::before { top: 50%; left: -20px; right: -20px; height: 1px; }
         .reticle::after { left: 50%; top: -20px; bottom: -20px; width: 1px; }
 
-        /* The Button Overlay - Guaranteed Top Layer */
         #startOverlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95);
@@ -106,8 +105,10 @@
         .hud-right .hud-item { border-left: none; border-right: 3px solid #00ffcc; }
         .insitu-tag { border-right: 3px solid #555 !important; color: #aaaaaa; font-size: 11px; margin-top: 10px; }
 
+        /* THE FIX: Changed from display: none to opacity: 0 to force background rendering */
         #pipContainer {
-            display: none; position: absolute; bottom: 60px; right: 40px; width: 45%; max-width: 600px;
+            visibility: hidden; opacity: 0; 
+            position: absolute; bottom: 60px; right: 40px; width: 45%; max-width: 600px;
             border: 3px solid #ff3333; box-shadow: 0 0 30px rgba(255, 51, 51, 0.4); background: #000; z-index: 10;
         }
         #pipContainer::before {
@@ -148,7 +149,7 @@
             <div class="hud-item" id="tgtStatus">TGT: TRACKING...</div>
         </div>
 
-        <video id="mainVideo" src="insitu_poc.mp4?v=6" muted playsinline></video>
+        <video id="mainVideo" src="insitu_poc.mp4?v=7" preload="auto" muted playsinline></video>
 
         <div id="alarmOverlay">STRUCTURAL ANOMALY DETECTED</div>
 
@@ -161,7 +162,7 @@
         </div>
 
         <div id="pipContainer">
-            <video id="xrayVideo" src="true_xray.mp4?v=6" muted playsinline></video>
+            <video id="xrayVideo" src="true_xray.mp4?v=7" preload="auto" muted playsinline></video>
         </div>
     </div>
 
@@ -202,22 +203,22 @@
             document.getElementById('memReadout').innerText = "MEM: 0x" + Math.random().toString(16).substring(2, 10).toUpperCase();
         }
 
-        // --- THE NUCLEAR START FUNCTION ---
         function igniteSystem() {
             const btn = document.getElementById('startBtn');
             const overlay = document.getElementById('startOverlay');
             const video = document.getElementById('mainVideo');
+            const xrayVideo = document.getElementById('xrayVideo');
 
             try {
-                // Instantly remove the dark overlay
                 overlay.style.display = 'none';
                 document.getElementById('sysStatus').innerText = "O.T.I.S.: ONLINE";
 
-                // Force video play and catch aggressive browser blocking
+                // Warm up the X-Ray video in the background before it's needed
+                xrayVideo.load();
+
                 const playPromise = video.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(error => {
-                        // If it fails, bring the screen back and print the exact error on the button
                         overlay.style.display = 'flex';
                         btn.innerText = "VIDEO BLOCKED: " + error.message;
                         btn.style.color = "red";
@@ -229,13 +230,11 @@
                 hudInterval = setInterval(updateTelemetry, 300);
 
             } catch (err) {
-                // If anything else breaks, print the JS error on the button
                 btn.innerText = "FATAL ERROR: " + err.message;
                 btn.style.color = "red";
             }
         }
 
-        // The Engine Loop
         const mainVideo = document.getElementById('mainVideo');
         const xrayVideo = document.getElementById('xrayVideo');
         
@@ -243,7 +242,11 @@
             if (mainVideo.currentTime >= mainVideo.duration - 0.5) {
                 mainVideo.currentTime = 0;
                 interceptTriggered = false;
-                document.getElementById('pipContainer').style.display = "none";
+                
+                // Hide using opacity instead of display:none
+                document.getElementById('pipContainer').style.visibility = "hidden";
+                document.getElementById('pipContainer').style.opacity = "0";
+                
                 document.getElementById('alarmOverlay').style.display = "none";
                 xrayVideo.pause();
                 xrayVideo.currentTime = 0;
@@ -258,7 +261,11 @@
             if (mainVideo.currentTime >= 1.5 && !interceptTriggered) { 
                 interceptTriggered = true;
                 xrayVideo.currentTime = mainVideo.currentTime;
-                document.getElementById('pipContainer').style.display = "block";
+                
+                // Show by snapping opacity to 100%
+                document.getElementById('pipContainer').style.visibility = "visible";
+                document.getElementById('pipContainer').style.opacity = "1";
+                
                 xrayVideo.play().catch(e => console.log(e));
                 
                 document.getElementById('alarmOverlay').style.display = "block";
